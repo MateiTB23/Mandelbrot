@@ -1,41 +1,46 @@
 import controlP5.*; // Importer ControlP5 library for GUI controls som buttons and sliders
-private ControlP5 cp5;
-private Slider iterationSlider;
-private JuliaSetCanvas juliaSetCanvas;
-private MandelbrotSetCanvas mandelbrotSetCanvas;
-private CurrentPointTooltipCanvas currentPointTooltipCanvas;
-private DropdownList paletteDropdownList;
-private DropdownList jumpToDropdownList; 
+
+private ControlP5 cp5; //ControlP5 variabel cp5
+private Slider iterationSlider; //slider til iterationer
+private JuliaSetCanvas juliaSetCanvas; // tegne området for juliaSetCanvas objekt fra klassen JuliaSetCanvas
+private MandelbrotSetCanvas mandelbrotSetCanvas; // tegne området for mandelbrotSetCanvas objekt fra klassen MandelbrotSetCanvas
+private CurrentPointTooltipCanvas currentPointTooltipCanvas; // tool tip til punktet hvor markør er fra objekt fra CurrentPointTooltipCanvas klasse
+ 
+private DropdownList paletteDropdownList; //drop down liste til forskellige farve paletter
+private DropdownList jumpToDropdownList;  //drop down liste til forskellige lokationer man kan teleportere
+
+//forskellige farve paletter til tegning af mandelbrot og julia-sæt, se evt klassen Palletes
 private IPalette palette0 = new Palette0();
 private IPalette palette1 = new Palette1();
 private IPalette palette2 = new Palette2();
-private IPalette currentPalette = palette0;
+private IPalette palette3 = new Palette3();
+private IPalette currentPalette = palette0; // aktuel farve palette
 private Complex currentPoint;
-private double model_left;
-private double model_right;
-private double model_top;
-private double model_bottom;
-private double model_left_original = -3d;
-private double model_right_original = +3d;
-private double model_top_original = +3d;
-private double model_bottom_original = -3d;
+private double modelLeft;
+private double modelRight;
+private double modelTop;
+private double modelBottom;
+private double modelLeftOriginal = -3d;
+private double modelRightOriginal = +3d;
+private double modelTopOriginal = +3d;
+private double modelBottomOriginal = -3d;
 private double zoomFactor = 1.05d;
 private double scaleX = 1.0d;
 private double scaleY = 1.0d;
-boolean drawAxes = false;
-boolean drawGrid = false;
-boolean drawIterations = false;
+private boolean drawAxes = false;
+private boolean drawGrid = false;
+private boolean drawIterations = false;
 
 void setup() {
   resetModel();
 
-  int window_width = 1280;
-  int window_height = 720;
-  int delta = window_width-window_height;
+  int windowWidth = 1280;
+  int windowHeight = 720;
+  int delta = windowWidth-windowHeight;
   int juliaSetCanvasWidth = delta;
   int juliaSetCanvasHeight = delta;
-  int mandelbrotSetCanvasWidth = window_height;
-  int mandelbrotSetCanvasHeight = window_height;
+  int mandelbrotSetCanvasWidth = windowHeight;
+  int mandelbrotSetCanvasHeight = windowHeight;
   int widgetWidth = 200;
   int widgetHeight = 25;
   int widgetMargin = 10;
@@ -54,7 +59,6 @@ void setup() {
   mandelbrotSetCanvas.setPalette(currentPalette);
 
   currentPointTooltipCanvas = new CurrentPointTooltipCanvas();
-
 
   cp5.addCanvas(mandelbrotSetCanvas);
   cp5.addCanvas(juliaSetCanvas);
@@ -112,6 +116,7 @@ void setup() {
     .addItem("Palette 1 (7 colors)", 0)
     .addItem("Palette 2 (Ultra Fractal)", 1)
     .addItem("Palette 3 (Grayscale)", 2)
+    .addItem("Palette 4 (Red-Blue)", 3)
     .setValue(0);
     
   jumpToDropdownList = cp5.addDropdownList("jumpToDropdownList")
@@ -156,10 +161,10 @@ void drawIterations(boolean state) {
 }
 
 private void resetModel() {
-  this.model_left = model_left_original;
-  this.model_right = model_right_original;
-  this.model_top = model_top_original;
-  this.model_bottom = model_bottom_original;
+  this.modelLeft = modelLeftOriginal;
+  this.modelRight = modelRightOriginal;
+  this.modelTop = modelTopOriginal;
+  this.modelBottom = modelBottomOriginal;
   this.zoomFactor = 1.05f;
   if (this.iterationSlider != null)
     this.iterationSlider.setValue(20f);
@@ -195,6 +200,9 @@ void controlEvent(ControlEvent event)
       break;
     case 2:
       currentPalette = palette2;
+      break;
+    case 3:
+      currentPalette = palette3;
       break;
     }
     mandelbrotSetCanvas.setPalette(currentPalette);
@@ -272,14 +280,14 @@ void controlEvent(ControlEvent event)
     }
     
     currentPoint = new Complex(re, im);
-    double model_width = 720.0d / (double)zoom;
-    double model_height = 720.0d / (double)zoom;
-    model_left = re - model_width / 2;
-    model_right = re + model_width / 2;
-    model_top = im + model_height / 2;
-    model_bottom = im - model_height / 2;
+    double modelWidth = 720.0d / (double)zoom;
+    double modelHeight = 720.0d / (double)zoom;
+    modelLeft = re - modelWidth / 2;
+    modelRight = re + modelWidth / 2;
+    modelTop = im + modelHeight / 2;
+    modelBottom = im - modelHeight / 2;
     iterationSlider.setValue(iteration);
     
-    //println("(" + model_left + ", " + model_right + ", " + model_bottom + ", " + model_top + ")");
+    //println("(" + modelLeft + ", " + modelRight + ", " + modelBottom + ", " + modelTop + ")");
   }
 }

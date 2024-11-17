@@ -123,3 +123,27 @@ public class Palette2 implements IPalette {
     return this.colors;
   }
 }
+
+
+public class Palette3 implements IPalette {  
+  private int totalSteps = 256; // Total number of grayscale steps
+  private color[] colors = new color[totalSteps];
+
+  public Palette3() {
+    // Generate the grayscale colors
+    for (int i = 0; i < totalSteps; i++) {
+      if(i % 2 == 0)
+        colors[i] = color(0, 0, 255);
+      else
+        colors[i] = color(255, 0, 0);
+    }
+  }
+ 
+  public int getSize() {    
+    return this.totalSteps;
+  }
+  
+  public color[] getColors() {
+    return this.colors;
+  }
+}
