@@ -1,3 +1,4 @@
+// klasse der modellerer et point på skærmen
 class Point {
   private float x;
   private float y;

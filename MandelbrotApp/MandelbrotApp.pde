@@ -16,24 +16,27 @@ private IPalette palette2 = new Palette2();
 private IPalette palette3 = new Palette3();
 private IPalette currentPalette = palette0; // aktuel farve palette
 private Complex currentPoint;
-private double modelLeft;
+// model's dimensioner i den komplekse plan
+private double modelLeft; 
 private double modelRight;
 private double modelTop;
 private double modelBottom;
+// model's dimensioner i den komplekse plan (default værdier)
 private double modelLeftOriginal = -3d;
 private double modelRightOriginal = +3d;
 private double modelTopOriginal = +3d;
 private double modelBottomOriginal = -3d;
-private double zoomFactor = 1.05d;
-private double scaleX = 1.0d;
-private double scaleY = 1.0d;
-private boolean drawAxes = false;
-private boolean drawGrid = false;
-private boolean drawIterations = false;
+private double zoomFactor = 1.05d; // zoom faktor
+private double scaleX = 1.0d; // skalafaktor for x-aksen
+private double scaleY = 1.0d; // skalafaktor for x-aksen
+private boolean drawAxes = false; // bool som angiver, om akserne skal tegnes
+private boolean drawGrid = false; // bool som angiver, om gitter skal tegnes
+private boolean drawIterations = false;  // bool som angiver, om akserne iterationerne skal tegnes
 
 void setup() {
   resetModel();
 
+  // initialisere værdierne
   int windowWidth = 1280;
   int windowHeight = 720;
   int delta = windowWidth-windowHeight;
@@ -45,26 +48,30 @@ void setup() {
   int widgetHeight = 25;
   int widgetMargin = 10;
 
-  size(1280, 720);
-  cp5 = new ControlP5(this);
+  size(1280, 720); // vindue størrelse
+  cp5 = new ControlP5(this); // instansiere CP5
 
+  // instansiere JuliaSetCanvas og placere det på skærmen
   juliaSetCanvas = new JuliaSetCanvas();
   juliaSetCanvas.setPosition(mandelbrotSetCanvasWidth, 0);
   juliaSetCanvas.setSize(juliaSetCanvasWidth, juliaSetCanvasHeight);
   juliaSetCanvas.setPalette(currentPalette);
 
+  // instansiere MandelbrotSetCanvas og placere det på skærmen
   mandelbrotSetCanvas = new MandelbrotSetCanvas(juliaSetCanvas);
   mandelbrotSetCanvas.setPosition(0, 0);
   mandelbrotSetCanvas.setSize(mandelbrotSetCanvasWidth, mandelbrotSetCanvasHeight);
   mandelbrotSetCanvas.setPalette(currentPalette);
 
+  // instansiere CurrentPointTooltipCanvas og placere det på skærmen
   currentPointTooltipCanvas = new CurrentPointTooltipCanvas();
 
+  // tilføj de tre canvas til cp5
   cp5.addCanvas(mandelbrotSetCanvas);
   cp5.addCanvas(juliaSetCanvas);
   cp5.addCanvas(currentPointTooltipCanvas);
 
-  // Create the iteration slider
+  // opret iteration slider
   iterationSlider = cp5.addSlider("Iterations")
     .setRange(0, this.currentPalette.getSize() * 4)
     .setValue(20)
@@ -74,7 +81,7 @@ void setup() {
     .showTickMarks(true)
     .snapToTickMarks(true);
 
-  // Create a button to reset the model
+  // opret "reset model" knap
   cp5.addButton("reset") // Button name (also used as a callback method)
     .setPosition(mandelbrotSetCanvasWidth, juliaSetCanvasHeight + widgetHeight + widgetMargin) // Position (x, y)
     .setSize(widgetWidth / 2 - 5, widgetHeight) // Size (width, height)
@@ -82,7 +89,7 @@ void setup() {
     .getCaptionLabel() // Access the label settings
     .align(ControlP5.CENTER, ControlP5.CENTER); // Align label to the center, centered vertically
 
-  // Create a toggle enable disable the drawing of grid
+  // opret toggle knap for at vise/skjule gitter
   cp5.addToggle("drawGrid") // Toggle name (also used as a callback)
     .setPosition(mandelbrotSetCanvasWidth + widgetWidth / 2 + 5, juliaSetCanvasHeight + widgetHeight + widgetMargin) // Position on canvas
     .setSize(widgetWidth / 2 - 5, widgetHeight) // Width and height
@@ -91,7 +98,7 @@ void setup() {
     .getCaptionLabel() // Access the label settings
     .align(ControlP5.CENTER, ControlP5.CENTER); // Align label to the center, centered vertically
 
-  // Create a toggle enable disable the drawing of axes
+  // opret toggle knap for at vise/skjule akserne
   cp5.addToggle("drawAxes") // Toggle name (also used as a callback)
     .setPosition(mandelbrotSetCanvasWidth, juliaSetCanvasHeight + 2 * (widgetHeight + widgetMargin)) // Position on canvas
     .setSize(widgetWidth / 2 - 5, widgetHeight) // Width and height
@@ -100,7 +107,7 @@ void setup() {
     .getCaptionLabel() // Access the label settings
     .align(ControlP5.CENTER, ControlP5.CENTER); // Align label to the center, centered vertically
 
-  // Create a toggle enable disable the drawing of iterations
+  // opret toggle knap for at vise/skjule iterationerne
   cp5.addToggle("drawIterations") // Toggle name (also used as a callback)
     .setPosition(mandelbrotSetCanvasWidth + widgetWidth / 2 + 5, juliaSetCanvasHeight + 2 * (widgetHeight + widgetMargin)) // Position on canvas
     .setSize(widgetWidth / 2 - 5, widgetHeight) // Width and height
@@ -109,6 +116,7 @@ void setup() {
     .getCaptionLabel() // Access the label settings
     .align(ControlP5.CENTER, ControlP5.CENTER); // Align label to the center, centered vertically
 
+  // opret dropdown list for at vælge paletter
   paletteDropdownList = cp5.addDropdownList("paletteDropdownList")
     .setPosition(mandelbrotSetCanvasWidth, juliaSetCanvasHeight + 3 * (widgetHeight + widgetMargin))
     .setSize(widgetWidth, widgetHeight * 3)
@@ -118,7 +126,8 @@ void setup() {
     .addItem("Palette 3 (Grayscale)", 2)
     .addItem("Palette 4 (Red-Blue)", 3)
     .setValue(0);
-    
+
+  // opret dropdown list for at vælge spændende steder på Mandelbrotsættet
   jumpToDropdownList = cp5.addDropdownList("jumpToDropdownList")
     .setPosition(mandelbrotSetCanvasWidth + widgetWidth + widgetMargin, juliaSetCanvasHeight + 1 * (widgetHeight + widgetMargin))
     .setSize(widgetWidth, widgetHeight * 5)
@@ -145,21 +154,23 @@ public void reset() {
   resetModel();
 }
 
-// Callback for the toggle button to enbable/disable draw axes
+// Callback for vise/skjule akserne
 void drawAxes(boolean state) {
   drawAxes = state; // Update state based on toggle
 }
 
-// Callback for the toggle button to enbable/disable draw grid
+// Callback for vise/skjule gitter
 void drawGrid(boolean state) {
   drawGrid = state; // Update state based on toggle
 }
 
-// Callback for the toggle button to enbable/disable draw iterations
+
+// Callback for vise/skjule iterationer
 void drawIterations(boolean state) {
   drawIterations = state; // Update state based on toggle
 }
 
+// Reset modelen til default værdier
 private void resetModel() {
   this.modelLeft = modelLeftOriginal;
   this.modelRight = modelRightOriginal;
@@ -170,28 +181,32 @@ private void resetModel() {
     this.iterationSlider.setValue(20f);
 }
 
+// Videresend mousePressed til MandelbrotSetCanvas
 void mousePressed() {
   mandelbrotSetCanvas.mousePressed();
 }
 
+// Videresend mouseRelease til MandelbrotSetCanvas
 void mouseReleased() {
   mandelbrotSetCanvas.mouseReleased();
 }
 
+// Videresend mouseDragged til MandelbrotSetCanvas
 void mouseDragged() {
   mandelbrotSetCanvas.mouseDragged();
 }
 
+// Videresend mouseWheel til MandelbrotSetCanvas
 void mouseWheel(MouseEvent event) {
   mandelbrotSetCanvas.mouseWheel(event);
 }
 
+// Håndterer events fra forskellige controller
 void controlEvent(ControlEvent event)
 {
   if (event.isFrom(paletteDropdownList))
   {
-    //int selection = paletteDropdownList.getItem((int) event.getValue());
-    switch ((int) event.getValue()) {
+    switch ((int) event.getValue()) { //skift paletten
     case 0:
       currentPalette = palette0;
       break;
@@ -205,6 +220,7 @@ void controlEvent(ControlEvent event)
       currentPalette = palette3;
       break;
     }
+    // den nye palette er applied på de to canvas
     mandelbrotSetCanvas.setPalette(currentPalette);
     juliaSetCanvas.setPalette(currentPalette);
   }
@@ -215,7 +231,9 @@ void controlEvent(ControlEvent event)
     double im = 0.0d;
     int iteration = 1;
     double zoom = 100;
-      
+
+    // baseret på hvad brugeren vælger i dropdown, så ændre man kooridaterne
+    // og zoom faktor i modellen, så man visualiserer det, som brugeren ønsker sig
     switch ((int) event.getValue()) {
     case 0: // Home
       re = 0.0d;
@@ -278,16 +296,18 @@ void controlEvent(ControlEvent event)
       zoom = 41793;
       break;
     }
-    
+
+    // centrerer modellen omkring punktet, som brugeren har valgt
     currentPoint = new Complex(re, im);
     double modelWidth = 720.0d / (double)zoom;
     double modelHeight = 720.0d / (double)zoom;
+    
+    // modellen bliver opdateret
     modelLeft = re - modelWidth / 2;
     modelRight = re + modelWidth / 2;
     modelTop = im + modelHeight / 2;
     modelBottom = im - modelHeight / 2;
+    // itereationSlideren bliver også opdateret
     iterationSlider.setValue(iteration);
-    
-    //println("(" + modelLeft + ", " + modelRight + ", " + modelBottom + ", " + modelTop + ")");
   }
 }
