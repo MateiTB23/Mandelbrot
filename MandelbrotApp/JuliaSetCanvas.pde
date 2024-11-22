@@ -1,4 +1,4 @@
-import controlP5.*;
+import controlP5.*;// Importer ControlP5 library for GUI controls som buttons and sliders
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
